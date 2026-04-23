@@ -1,0 +1,25 @@
+{
+  "name": "pulsenet",
+  "version": "1.0.0",
+  "description": "PulseNet Emergency Response App",
+  "private": true,
+  "scripts": {
+    "dev": "cd server && npm run dev",
+    "build": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "cd server && npm install"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase": "^12.12.1",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
+  }
+}

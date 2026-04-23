@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#020617">
+  <meta name="description" content="PulseNet Dashboard — SOS, Live Map, Alerts">
+  <title>PulseNet — Dashboard</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">PN</div>
+        <span class="header-title"><span class="brand-pulse">Pulse</span><span class="brand-net">Net</span></span>
+        <span class="connection-dot connecting" id="connection-dot" title="Connecting..."></span>
+        <button class="voice-indicator disabled" id="voice-indicator" title="Voice disabled — click to enable">
+          <span class="voice-mic-icon">🎤</span>
+          <span class="voice-ripple"></span>
+        </button>
+      </div>
+      <div class="header-right">
+        <button class="header-btn" id="btn-notifications" title="Alerts">
+          🔔
+          <span class="notification-badge" id="notification-badge" style="display:none"></span>
+        </button>
+        <button class="header-btn" id="btn-profile" title="Profile">
+          👤
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="app-content">
+
+      <!-- ──── SCREEN 1: HOME ──── -->
+      <section class="screen home-screen active" id="screen-home" data-screen="home">
+
+        <!-- Normal State -->
+        <div class="sos-normal" id="sos-normal">
+          <!-- Status -->
+          <div class="status-card animate-scale-in" id="status-card">
+            <div class="status-dot safe" id="status-dot"></div>
+            <div class="status-info">
+              <div class="status-label" id="status-label">You're Safe</div>
+              <div class="status-detail" id="status-detail">No active emergencies nearby</div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="location-card animate-fade-in" style="animation-delay: 0.1s;">
+            <span class="location-icon">📍</span>
+            <span class="location-text">Location: <strong id="location-status">Acquiring...</strong></span>
+          </div>
+
+          <!-- Nearby Users -->
+          <div class="nearby-count-card animate-fade-in" style="animation-delay: 0.2s;">
+            <span class="nearby-icon">👥</span>
+            <span class="nearby-text"><strong id="nearby-count">0</strong> users nearby</span>
+          </div>
+
+          <!-- Emergency Type Selector -->
+          <div class="sos-zone">
+            <div class="sos-type-selector" id="sos-type-selector">
+              <button class="sos-type-btn active" data-type="medical">
+                <span class="type-icon">🏥</span>
+                Medical
+              </button>
+              <button class="sos-type-btn" data-type="fire">
+                <span class="type-icon">🔥</span>
+                Fire
+              </button>
+              <button class="sos-type-btn" data-type="harassment">
+                <span class="type-icon">⚠️</span>
+                Threat
+              </button>
+              <button class="sos-type-btn" data-type="accident">
+                <span class="type-icon">🚗</span>
+                Accident
+              </button>
+            </div>
+
+            <!-- THE SOS BUTTON -->
+            <div class="sos-container animate-scale-in" id="sos-container" style="animation-delay: 0.3s;">
+              <div class="sos-pulse-ring"></div>
+              <div class="sos-pulse-ring"></div>
+              <div class="sos-pulse-ring"></div>
+              <svg class="sos-progress-ring" id="sos-progress-ring" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" id="sos-progress-circle"></circle>
+              </svg>
+              <button class="sos-button" id="sos-button" aria-label="Trigger SOS Emergency">
+                SOS
+              </button>
+            </div>
+
+            <p class="sos-hint" id="sos-hint">Hold for 2 seconds to trigger emergency</p>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <div class="quick-actions-title">⚡ Quick Actions</div>
+            <div class="quick-actions-row">
+              <button class="quick-action-btn" id="btn-call-police">
+                <span class="qa-icon">🚔</span>
+                Call Police
+              </button>
+              <button class="quick-action-btn" id="btn-call-family">
+                <span class="qa-icon">👨‍👩‍👧</span>
+                Call Family
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Active State -->
+        <div class="emergency-active" id="emergency-active">
+          <div class="emergency-icon" id="emergency-type-icon">🚨</div>
+          <h2 class="emergency-title">Help is Coming</h2>
+          <p class="emergency-subtitle" id="emergency-subtitle">Your SOS has been sent. Stay calm. Help is being dispatched.</p>
+
+          <div class="emergency-responders">
+            <div class="responders-title">Responders</div>
+            <ul class="responders-list" id="responders-list">
+              <li style="color: var(--text-muted); font-style: italic;">Waiting for responders...</li>
+            </ul>
+          </div>
+
+          <button class="cancel-sos-btn" id="cancel-sos-btn">✕ Cancel SOS</button>
+        </div>
+      </section>
+
+      <!-- ──── SCREEN 2: LIVE MAP ──── -->
+      <section class="screen map-screen" id="screen-map" data-screen="map">
+        <div class="map-toolbar">
+          <input type="text" class="map-search" id="map-search" placeholder="🔍 Search area...">
+          <button class="map-filter-btn" id="map-filter-btn">⚙️ Filters</button>
+        </div>
+        <div id="crisis-map"></div>
+        <button class="map-fab" id="map-locate-btn" title="Go to my location">📍</button>
+        <div class="map-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--medical)"></span>
+            SOS Alerts
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--info)"></span>
+            Nearby Users
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--safe)"></span>
+            Your Location
+          </div>
+        </div>
+
+        <!-- RESPONDER ASSIST PANEL -->
+        <div class="responder-assist-panel" id="responder-assist-panel">
+          <div class="assist-header">
+            <div class="assist-title">
+              <span class="assist-icon">🧭</span>
+              <h3>Navigation Assist</h3>
+            </div>
+            <button class="assist-close" id="assist-close-btn">✕</button>
+          </div>
+          <div class="assist-route-info">
+            <div class="route-time" id="assist-route-time">⏱️ 3 min (1.2 km)</div>
+            <div class="route-status">Fastest route selected</div>
+          </div>
+          <div class="assist-instructions">
+            <div class="instruction-item warning">
+              <span class="inst-icon">🚧</span>
+              <p><strong>Notice:</strong> Avoid blocked road. Route has been adjusted.</p>
+            </div>
+            <div class="instruction-item info">
+              <span class="inst-icon">💧</span>
+              <p><strong>Instruction:</strong> Please carry water and stay alert.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="start-nav-btn">Acknowledge</button>
+        </div>
+      </section>
+
+      <!-- ──── SCREEN 3: ALERTS FEED ──── -->
+      <section class="screen alerts-screen" id="screen-alerts" data-screen="alerts">
+        <div class="alerts-header">
+          <h2 class="alerts-title">🔔 Live Alerts</h2>
+          <p class="alerts-subtitle">Real-time emergency events near you</p>
+        </div>
+        
+        <div id="critical-alert-banner" class="critical-banner hide">
+          <div class="critical-banner-title" id="critical-banner-text">🚨 MOST CRITICAL ALERT: Medical 1.2km away</div>
+        </div>
+        
+        <div class="alerts-list" id="alerts-list">
+          <div class="empty-alerts" id="empty-alerts">
+            <div class="empty-alerts-icon">🛡️</div>
+            <div class="empty-alerts-text">All Clear</div>
+            <div class="empty-alerts-sub">No active alerts in your area</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──── SCREEN 4: PROFILE / SETTINGS ──── -->
+      <section class="screen profile-screen" id="screen-profile" data-screen="profile">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profile-avatar">?</div>
+          <div class="profile-name" id="profile-name">User</div>
+          <div class="profile-email" id="profile-email">Not signed in</div>
+          <div class="profile-rating" id="profile-rating" style="margin-top: 8px; font-size: 13px; font-weight: 700; color: #FFCC00; background: rgba(255,204,0,0.15); padding: 4px 10px; border-radius: 12px; display: inline-block;">⭐️ 5.0 (Trust Score)</div>
+        </div>
+
+        <!-- Personal Info -->
+        <div class="settings-section">
+          <div class="settings-section-title">Personal Info</div>
+          <div class="settings-card">
+            <div class="settings-item" id="setting-name">
+              <div class="settings-item-left">
+                <div class="settings-icon blue">👤</div>
+                <div>
+                  <div class="settings-item-label">Display Name</div>
+                  <div class="settings-item-sublabel" id="setting-name-value">—</div>
+                </div>
+              </div>
+              <div class="settings-item-right">›</div>
+            </div>
+            <div class="settings-item" id="setting-phone">
+              <div class="settings-item-left">
+                <div class="settings-icon green">📱</div>
+                <div>
+                  <div class="settings-item-label">Phone</div>
+                  <div class="settings-item-sublabel" id="setting-phone-value">—</div>
+                </div>
+              </div>
+              <div class="settings-item-right">›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div class="settings-section">
+          <div class="settings-section-title">Emergency Contacts</div>
+          <div class="settings-card">
+            <ul class="emergency-contacts-list" id="emergency-contacts-list">
+              <!-- Contacts will be rendered here -->
+            </ul>
+            <button class="add-contact-btn" id="add-contact-btn">+ Add Emergency Contact</button>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="settings-section">
+          <div class="settings-section-title">Preferences</div>
+          <div class="settings-card">
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon orange">🙋</div>
+                <div>
+                  <div class="settings-item-label">Register as Volunteer</div>
+                  <div class="settings-item-sublabel">Get alerted to help others nearby</div>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-volunteer">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item"
+              >
+              <div class="settings-item-left">
+                <div class="settings-icon purple">📍</div>
+                <div>
+                  <div class="settings-item-label">Share Location</div>
+                  <div class="settings-item-sublabel">Allow others to see you on the map</div>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-location" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item" id="voice-setting-item">
+              <div class="settings-item-left">
+                <div class="settings-icon" style="background: rgba(0, 200, 150, 0.12);">🎤</div>
+                <div>
+                  <div class="settings-item-label">Voice Activation</div>
+                  <div class="settings-item-sublabel">Say "Hey PulseNet, Emergency" for hands-free SOS</div>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-voice">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account -->
+        <div class="settings-section">
+          <div class="settings-section-title">Account</div>
+          <div class="settings-card">
+            <div class="settings-item" id="btn-logout" style="cursor:pointer">
+              <div class="settings-item-left">
+                <div class="settings-icon red">🚪</div>
+                <div>
+                  <div class="settings-item-label" style="color: var(--danger)">Sign Out</div>
+                </div>
+              </div>
+              <div class="settings-item-right">›</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ═══ BOTTOM NAVIGATION ═══ -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-item active" data-tab="home" id="nav-home">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" data-tab="map" id="nav-map">
+        <span class="nav-icon">🗺️</span>
+        <span class="nav-label">Map</span>
+      </button>
+      <button class="nav-item" data-tab="alerts" id="nav-alerts">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alerts</span>
+        <span class="alert-count" id="nav-alert-count" style="display:none">0</span>
+      </button>
+      <button class="nav-item" data-tab="profile" id="nav-profile">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ═══ ALERT OVERLAY ═══ -->
+  <div class="alert-overlay" id="alert-overlay">
+    <div class="alert-overlay-icon" id="alert-overlay-icon">🚨</div>
+    <div class="alert-overlay-title" id="alert-overlay-title">Emergency Nearby</div>
+    <div class="alert-overlay-distance" id="alert-overlay-distance">0.5 km away</div>
+    <div class="alert-overlay-time" id="alert-overlay-time">Just now</div>
+    <div class="alert-overlay-actions">
+      <button class="btn btn-respond" id="alert-overlay-respond">🙋 I Can Help</button>
+      <button class="btn btn-secondary" id="alert-overlay-dismiss">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- ═══ ADD CONTACT MODAL ═══ -->
+  <div class="alert-overlay" id="contact-modal-overlay">
+    <div class="auth-card" style="margin: 0; max-width: 340px; text-align: left; width: 100%;">
+      <h2 style="margin-bottom: 20px; text-align: left; font-size: 22px;">Add Emergency Contact</h2>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="contact-name-input" placeholder="E.g. Jane Doe">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="contact-phone-input" placeholder="+1 555 123 4567">
+      </div>
+      <div class="form-group">
+        <label>Relationship</label>
+        <input type="text" id="contact-rel-input" placeholder="Parent, Friend, etc.">
+      </div>
+      <div class="alert-overlay-actions" style="margin-top: 24px; max-width: 100%;">
+        <button class="btn btn-secondary" id="contact-modal-cancel" style="padding: 14px;">Cancel</button>
+        <button class="btn btn-primary" id="contact-modal-save" style="padding: 14px; width: auto; flex: 2; margin: 0;">Save Contact</button>
+      </div>
+    </div>
+  </div>
+  <!-- ═══ VOICE ACTIVATION OVERLAY ═══ -->
+  <div class="voice-activation-overlay" id="voice-activation-overlay">
+    <div class="voice-activation-content">
+      <div class="voice-activation-rings">
+        <div class="voice-ring"></div>
+        <div class="voice-ring"></div>
+        <div class="voice-ring"></div>
+        <div class="voice-mic-large">🎤</div>
+      </div>
+      <h2 class="voice-activation-title">Voice SOS Detected</h2>
+      <p class="voice-detected-type">🚨 Emergency</p>
+      <p class="voice-activation-subtitle">Triggering SOS in 2 seconds...</p>
+      <div class="voice-countdown-bar">
+        <div class="voice-countdown-fill"></div>
+      </div>
+      <button class="btn btn-secondary voice-cancel-btn">✕ Cancel</button>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- Socket.IO client -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- App Modules -->
+  <script src="js/socket.js"></script>
+  <script src="js/location.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/navigate.js"></script>
+  <script src="js/sos.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

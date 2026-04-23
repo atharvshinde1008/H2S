@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#020617">
+  <meta name="description" content="PulseNet — Emergency response in seconds. One-tap SOS, live location, nearby alerts.">
+  <title>PulseNet — Emergency Response</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
+</head>
+<body>
+  <div class="auth-page" id="auth-page">
+    <!-- Logo -->
+    <div class="auth-logo animate-fade-in">
+      <div class="auth-logo-icon">🚨</div>
+      <h1><span class="brand-pulse">Pulse</span><span class="brand-net">Net</span></h1>
+      <p>Emergency response in seconds.<br>One tap. Help arrives.</p>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card animate-scale-in" style="animation-delay: 0.2s;">
+      <h2>Get Started</h2>
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="auth-name">Your Name</label>
+          <input type="text" id="auth-name" placeholder="Enter your name" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="auth-phone">Phone Number</label>
+          <input type="tel" id="auth-phone" placeholder="+91 98765 43210" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label for="auth-email">Email (optional)</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <button type="submit" class="btn btn-primary" id="auth-submit">
+          🚀 Enter PulseNet
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
