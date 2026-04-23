@@ -1,21 +1,22 @@
-import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
-import { setupSocketHandlers } from './sockets/handler';
-import incidentRoutes from './routes/incidents';
-import userRoutes from './routes/users';
+import dotenv from "dotenv";
+import { setupSocketHandlers } from "./sockets/handler";
+import incidentRoutes from "./routes/incidents";
+import userRoutes from "./routes/users";
 
 dotenv.config();
 
 const app = express();
+app.use(cors())
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 

@@ -1,0 +1,10 @@
+import { GeoLocation, UserLocation } from '../types';
+export declare function calculateGeoCell(location: GeoLocation): string;
+export declare function getAdjacentCells(cell: string): string[];
+export declare function updateUserLocation(userId: string, userName: string, location: GeoLocation): UserLocation;
+export declare function getUserLocation(userId: string): UserLocation | undefined;
+export declare function getActiveLocations(): UserLocation[];
+export declare function getUsersInCells(cells: string[], excludeUserId?: string): UserLocation[];
+export declare function removeUserLocation(userId: string): void;
+export declare function getNearbyUserCount(location: GeoLocation, excludeUserId?: string): number;
+export declare function calculateDistance(a: GeoLocation, b: GeoLocation): number;
