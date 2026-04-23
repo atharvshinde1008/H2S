@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "plusenet-d9b4e"
+  },
   "targets": {},
   "etags": {}
 }
