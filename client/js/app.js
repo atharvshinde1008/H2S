@@ -16,7 +16,6 @@ const PulseApp = (function () {
     }
 
     // Initialize all modules
-    PulseSocket.connect();
     PulseLocation.start();
     PulseMap.init();
     PulseNavigate.init();

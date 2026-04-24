@@ -11,9 +11,8 @@ const PulseVoice = (function () {
   let isEnabled = false;
   let restartTimeout = null;
   let cooldownActive = false;
-  let pendingSOSTimeout = null; // Tracks the 2-second SOS countdown
+  let pendingSOSTimeout = null;
 
-  // Wake phrases (lowercased for matching)
   const WAKE_PHRASES = [
     'hey pulsenet emergency',
     'hey pulse net emergency',
@@ -28,7 +27,6 @@ const PulseVoice = (function () {
     'emergency',
   ];
 
-  // Phrases that also set a specific emergency type
   const TYPE_PHRASES = {
     medical: ['medical', 'doctor', 'ambulance', 'hospital', 'health', 'heart', 'bleeding', 'injury', 'hurt'],
     fire: ['fire', 'burning', 'smoke', 'flames'],
@@ -37,7 +35,6 @@ const PulseVoice = (function () {
   };
 
   function init() {
-    // Check browser support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       console.warn('🎤 Speech Recognition not supported in this browser');
@@ -45,10 +42,8 @@ const PulseVoice = (function () {
       return;
     }
 
-    // Load saved preference
     isEnabled = localStorage.getItem('pulsenet_voice') === 'true';
 
-    // Setup toggle in settings
     const toggle = document.getElementById('toggle-voice');
     if (toggle) {
       toggle.checked = isEnabled;
@@ -64,19 +59,6 @@ const PulseVoice = (function () {
       });
     }
 
-    // Setup recognition engine
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 3;
-
-    recognition.onresult = onResult;
-    recognition.onerror = onError;
-    recognition.onend = onEnd;
-    recognition.onstart = onStart;
-
-    // Voice indicator click to toggle
     const indicator = document.getElementById('voice-indicator');
     if (indicator) {
       indicator.addEventListener('click', toggleVoice);
@@ -89,24 +71,54 @@ const PulseVoice = (function () {
     updateVoiceIndicator();
   }
 
+  /**
+   * (Re)initializes the SpeechRecognition object.
+   * This is called on every start to ensure a fresh state, 
+   * which fixes many 'no-speech' and 'aborted' issues.
+   */
+  function setupRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+
+    const rec = new SpeechRecognition();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-US';
+    rec.maxAlternatives = 3;
+
+    rec.onresult = onResult;
+    rec.onerror = onError;
+    rec.onend = onEnd;
+    rec.onstart = onStart;
+
+    return rec;
+  }
+
   function startListening() {
-    if (!recognition || isListening) return;
+    if (!isEnabled || isListening) return;
 
     try {
-      recognition.start();
+      // Always create a fresh instance to avoid stale state
+      recognition = setupRecognition();
+      if (recognition) {
+        recognition.start();
+      }
     } catch (err) {
       console.warn('🎤 Recognition start error:', err.message);
+      scheduleRestart(); // Try again later
     }
   }
 
   function stopListening() {
-    if (!recognition) return;
     clearTimeout(restartTimeout);
+    if (!recognition) return;
+    
     try {
+      recognition.onend = null; // Prevent auto-restart loop
       recognition.stop();
-    } catch (err) {
-      // Already stopped
-    }
+    } catch (err) {}
+    
+    recognition = null;
     isListening = false;
     updateVoiceIndicator();
   }
@@ -133,7 +145,7 @@ const PulseVoice = (function () {
   function onStart() {
     isListening = true;
     updateVoiceIndicator();
-    console.log('🎤 Voice recognition started');
+    console.log('🎤 Voice recognition active');
   }
 
   function onResult(event) {
@@ -141,15 +153,13 @@ const PulseVoice = (function () {
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
-
-      // Check all alternatives
       for (let j = 0; j < result.length; j++) {
         const transcript = result[j].transcript.toLowerCase().trim();
-        console.log('🎤 Heard:', transcript);
+        
+        // Debug: Log what's being heard
+        if (result.isFinal) console.log('🎤 Heard (Final):', transcript);
 
-        // Check if any wake phrase matches
         const matched = WAKE_PHRASES.some(phrase => transcript.includes(phrase));
-
         if (matched) {
           console.log('🎤 ✅ Wake phrase detected:', transcript);
           onWakeDetected(transcript);
@@ -168,12 +178,12 @@ const PulseVoice = (function () {
       const toggle = document.getElementById('toggle-voice');
       if (toggle) toggle.checked = false;
       updateVoiceIndicator();
-      showVoiceToast('Microphone permission denied');
+      showVoiceToast('Microphone permission required');
       return;
     }
 
-    // Auto-restart on recoverable errors
-    if (isEnabled && (event.error === 'no-speech' || event.error === 'aborted' || event.error === 'network')) {
+    // Recoverable errors: schedule a fresh restart
+    if (isEnabled) {
       scheduleRestart();
     }
   }
@@ -181,8 +191,6 @@ const PulseVoice = (function () {
   function onEnd() {
     isListening = false;
     updateVoiceIndicator();
-
-    // Auto-restart if still enabled
     if (isEnabled) {
       scheduleRestart();
     }
@@ -190,6 +198,7 @@ const PulseVoice = (function () {
 
   function scheduleRestart() {
     clearTimeout(restartTimeout);
+    // Short delay before restart to prevent tight loops
     restartTimeout = setTimeout(() => {
       if (isEnabled && !isListening) {
         startListening();
@@ -200,15 +209,12 @@ const PulseVoice = (function () {
   // ─── Wake Phrase Handling ────────────────────────────
 
   function onWakeDetected(transcript) {
-    // Prevent rapid re-triggers
     cooldownActive = true;
     setTimeout(() => { cooldownActive = false; }, 8000);
 
-    // Flash the voice indicator
     flashVoiceIndicator();
 
-    // Determine emergency type from transcript
-    let detectedType = 'medical'; // default
+    let detectedType = 'medical';
     for (const [type, keywords] of Object.entries(TYPE_PHRASES)) {
       if (keywords.some(kw => transcript.includes(kw))) {
         detectedType = type;
@@ -216,18 +222,13 @@ const PulseVoice = (function () {
       }
     }
 
-    // Vibrate to confirm
     if (navigator.vibrate) {
       navigator.vibrate([100, 50, 100, 50, 200]);
     }
 
-    // Play confirmation tone
     playConfirmTone();
-
-    // Show voice activation overlay
     showVoiceActivationOverlay(detectedType);
 
-    // Auto-trigger SOS after 2 second countdown (cancellable)
     clearTimeout(pendingSOSTimeout);
     pendingSOSTimeout = setTimeout(() => {
       triggerVoiceSOS(detectedType);
@@ -235,29 +236,18 @@ const PulseVoice = (function () {
   }
 
   function triggerVoiceSOS(type) {
-    console.log('🎤 🚨 Voice SOS firing for type:', type);
-
-    // Hide the overlay first
     hideVoiceActivationOverlay();
-
-    // Switch to home tab so user can see the SOS state
     if (window.PulseApp && window.PulseApp.switchTab) {
-      // Force switch even if already on home by checking
       window.PulseApp.switchTab('home');
     }
-
-    // Use PulseSOS's proper trigger method instead of duplicating logic
-    // This ensures isEmergencyActive, activeIncident, socket events, and
-    // all UI state are managed correctly through the same code path.
     if (window.PulseSOS && PulseSOS.triggerFromVoice) {
       PulseSOS.triggerFromVoice(type);
     } else {
-      console.error('🎤 ❌ PulseSOS.triggerFromVoice not available');
-      showVoiceToast('SOS trigger failed — try the button');
+      showVoiceToast('SOS trigger failed');
     }
   }
 
-  // ─── Voice Activation Overlay ────────────────────────
+  // ─── UI Helpers (Toast, Overlay, etc.) ────────────────
 
   function showVoiceActivationOverlay(type) {
     const overlay = document.getElementById('voice-activation-overlay');
@@ -273,7 +263,6 @@ const PulseVoice = (function () {
     const typeLabel = overlay.querySelector('.voice-detected-type');
     if (typeLabel) typeLabel.textContent = TYPE_LABELS[type] || '🚨 Emergency';
 
-    // Reset the countdown animation by removing and re-adding the fill element
     const bar = overlay.querySelector('.voice-countdown-bar');
     if (bar) {
       const oldFill = bar.querySelector('.voice-countdown-fill');
@@ -285,7 +274,6 @@ const PulseVoice = (function () {
 
     overlay.classList.add('show');
 
-    // Cancel button — clears the pending SOS timeout
     const cancelBtn = overlay.querySelector('.voice-cancel-btn');
     if (cancelBtn) {
       cancelBtn.onclick = () => {
@@ -303,8 +291,6 @@ const PulseVoice = (function () {
     if (overlay) overlay.classList.remove('show');
   }
 
-  // ─── UI Updates ──────────────────────────────────────
-
   function updateVoiceIndicator() {
     const indicator = document.getElementById('voice-indicator');
     if (!indicator) return;
@@ -312,16 +298,16 @@ const PulseVoice = (function () {
     indicator.classList.toggle('active', isEnabled && isListening);
     indicator.classList.toggle('disabled', !isEnabled);
     indicator.title = isEnabled
-      ? (isListening ? 'Voice active — say "Hey PulseNet, Emergency"' : 'Voice connecting...')
-      : 'Voice disabled — click to enable';
+      ? (isListening ? 'Voice active' : 'Connecting...')
+      : 'Voice disabled';
   }
 
   function flashVoiceIndicator() {
     const indicator = document.getElementById('voice-indicator');
-    if (!indicator) return;
-
-    indicator.classList.add('triggered');
-    setTimeout(() => indicator.classList.remove('triggered'), 2000);
+    if (indicator) {
+      indicator.classList.add('triggered');
+      setTimeout(() => indicator.classList.remove('triggered'), 2000);
+    }
   }
 
   function showVoiceToast(message) {
@@ -332,32 +318,25 @@ const PulseVoice = (function () {
       toast.className = 'voice-toast';
       document.body.appendChild(toast);
     }
-
     toast.textContent = '🎤 ' + message;
     toast.classList.remove('show');
-    // Force reflow so the animation restarts
     void toast.offsetWidth;
     toast.classList.add('show');
-
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
   function hideVoiceUI() {
     const indicator = document.getElementById('voice-indicator');
     if (indicator) indicator.style.display = 'none';
-
     const settingItem = document.getElementById('voice-setting-item');
     if (settingItem) settingItem.style.display = 'none';
   }
-
-  // ─── Audio Feedback ──────────────────────────────────
 
   let audioCtx = null;
   function playConfirmTone() {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
-
       function tone(freq, time, dur) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -370,13 +349,8 @@ const PulseVoice = (function () {
         osc.start(audioCtx.currentTime + time);
         osc.stop(audioCtx.currentTime + time + dur + 0.05);
       }
-
-      tone(523, 0, 0.15);     // C5
-      tone(659, 0.15, 0.15);  // E5
-      tone(784, 0.3, 0.25);   // G5
-    } catch (err) {
-      console.warn('Audio failed:', err);
-    }
+      tone(523, 0, 0.15); tone(659, 0.15, 0.15); tone(784, 0.3, 0.25);
+    } catch (err) {}
   }
 
   return {

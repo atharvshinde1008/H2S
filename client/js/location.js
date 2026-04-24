@@ -78,6 +78,10 @@ const PulseLocation = (function () {
 
   function onLocationUpdate(callback) {
     listeners.push(callback);
+    // Replay last known location immediately
+    if (currentLocation) {
+      callback(currentLocation);
+    }
   }
 
   function stop() {

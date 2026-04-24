@@ -100,6 +100,7 @@ const PulseMap = (function () {
 
   function updateSelfMarker(loc) {
     if (!map) return;
+    console.log('📍 Map received location update:', loc);
 
     if (selfMarker) {
       selfMarker.setLatLng([loc.lat, loc.lng]);
