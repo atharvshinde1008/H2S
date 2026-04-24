@@ -62,63 +62,88 @@ const PulseMap = (function () {
       locateBtn.addEventListener('click', centerOnSelf);
     }
   }
-  
+
   let facilitiesFetched = false;
   async function fetchNearbyFacilities(lat, lng) {
     if (facilitiesFetched || !map) return;
     facilitiesFetched = true;
-    
+
     // 5km radius
     const radius = 5000;
     const overpassQuery = `[out:json];(node["amenity"="hospital"](around:${radius},${lat},${lng});node["amenity"="police"](around:${radius},${lat},${lng});node["amenity"="fire_station"](around:${radius},${lat},${lng}););out;`;
-    
+
     try {
       const response = await fetch(`https://overpass-api.de/api/interpreter`, { method: 'POST', body: overpassQuery });
       const data = await response.json();
-      
+
       data.elements.forEach(el => {
         const type = el.tags.amenity;
         const iconConf = type === 'hospital' ? { emoji: '🏥', cls: 'facility-hospital' } :
-                         type === 'police' ? { emoji: '🚔', cls: 'facility-police' } :
-                         { emoji: '🚒', cls: 'facility-fire' };
-                         
+          type === 'police' ? { emoji: '🚔', cls: 'facility-police' } :
+            { emoji: '🚒', cls: 'facility-fire' };
+
         const icon = L.divIcon({
           className: '',
           html: `<div class="marker-facility ${iconConf.cls}">${iconConf.emoji}</div>`,
           iconSize: [22, 22],
           iconAnchor: [11, 11]
         });
-        
+
         L.marker([el.lat, el.lon], { icon, zIndexOffset: -100 })
-         .addTo(map)
-         .bindPopup(`<div style="color:#0F172A;font-family:Inter,sans-serif;"><b>${iconConf.emoji} ${type.replace('_',' ').toUpperCase()}</b><br>${el.tags.name || 'Facility'}</div>`);
+          .addTo(map)
+          .bindPopup(`<div style="color:#0F172A;font-family:Inter,sans-serif;"><b>${iconConf.emoji} ${type.replace('_', ' ').toUpperCase()}</b><br>${el.tags.name || 'Facility'}</div>`);
       });
     } catch (err) {
       console.warn("Could not fetch nearby facilities:", err);
     }
   }
 
+  let accuracyCircle = null;
+
   function updateSelfMarker(loc) {
     if (!map) return;
     console.log('📍 Map received location update:', loc);
 
+    const pos = [loc.lat, loc.lng];
+
+    // Accuracy Circle (Google Maps style)
+    if (loc.accuracy) {
+      if (accuracyCircle) {
+        accuracyCircle.setLatLng(pos);
+        accuracyCircle.setRadius(loc.accuracy);
+      } else {
+        accuracyCircle = L.circle(pos, {
+          radius: loc.accuracy,
+          weight: 1,
+          color: '#3b82f6',
+          fillColor: '#3b82f6',
+          fillOpacity: 0.15,
+          className: 'accuracy-circle-pulsing'
+        }).addTo(map);
+      }
+    }
+
     if (selfMarker) {
-      selfMarker.setLatLng([loc.lat, loc.lng]);
+      selfMarker.setLatLng(pos);
     } else {
       const icon = L.divIcon({
         className: '',
-        html: '<div class="custom-marker marker-self" style="position:relative"><div style="width:8px;height:8px;background:#fff;border-radius:50%;"></div></div>',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+        html: `
+          <div class="marker-self-container">
+            <div class="marker-self-dot"></div>
+            <div class="marker-self-pulse"></div>
+          </div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
       });
 
-      selfMarker = L.marker([loc.lat, loc.lng], { icon, zIndexOffset: 1000 })
+      selfMarker = L.marker(pos, { icon, zIndexOffset: 1000 })
         .addTo(map)
         .bindPopup('<b>📍 Your Location</b>');
 
-      // Center map on first location
-      map.setView([loc.lat, loc.lng], 15);
-      
+      // Center map on first location with a nice animation
+      map.flyTo(pos, 17, { duration: 1.5 });
+
       // Fetch nearby police, hospital, and fire stations
       fetchNearbyFacilities(loc.lat, loc.lng);
     }

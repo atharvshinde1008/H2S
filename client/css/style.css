@@ -8,12 +8,12 @@
 /* ─── CSS Custom Properties ──────────────────────────── */
 :root {
   /* Core Colors - Slate 950 Base */
-  --bg-primary: #020617; 
+  --bg-primary: #020617;
   --bg-secondary: #0f172a;
   --bg-tertiary: #1e293b;
   --bg-card: rgba(15, 23, 42, 0.5);
   --bg-glass: rgba(2, 6, 23, 0.7);
-  
+
   /* Accent Colors - Vibrant Indigo/Violet */
   --accent-primary: #818cf8;
   --accent-secondary: #c084fc;
@@ -31,7 +31,7 @@
   --warning-soft: rgba(245, 158, 11, 0.1);
   --info: #3b82f6;
   --info-soft: rgba(59, 130, 246, 0.1);
-  
+
   /* Types */
   --medical: var(--danger);
   --fire: #f97316;
@@ -71,9 +71,12 @@
 }
 
 /* ─── Reset ──────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -97,8 +100,11 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
     radial-gradient(circle at 0% 0%, rgba(129, 140, 248, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 1) 0%, rgba(2, 6, 23, 1) 100%);
@@ -108,8 +114,11 @@ body::before {
 body::after {
   content: "";
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -118,33 +127,78 @@ body::after {
   pointer-events: none;
 }
 
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; }
-input, select, textarea { font-family: inherit; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
 
 /* ─── Global Animations ───────────────────────────────── */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.animate-fade-in { animation: fadeInUp 0.6s var(--ease-out) forwards; }
-.animate-scale-in { animation: scaleIn 0.5s var(--ease-spring) forwards; }
+.animate-fade-in {
+  animation: fadeInUp 0.6s var(--ease-out) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s var(--ease-spring) forwards;
+}
 
 /* ─── Auth Page ────────────────────────────────────────── */
 .auth-page {
@@ -190,8 +244,13 @@ input, select, textarea { font-family: inherit; }
   -webkit-text-fill-color: transparent;
 }
 
-.brand-pulse { color: var(--info); }
-.brand-net { color: var(--text-primary); }
+.brand-pulse {
+  color: var(--info);
+}
+
+.brand-net {
+  color: var(--text-primary);
+}
 
 .auth-logo p {
   color: var(--text-secondary);
@@ -217,8 +276,11 @@ input, select, textarea { font-family: inherit; }
 .auth-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 .auth-card h2 {
@@ -288,7 +350,9 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 12px 30px var(--danger-glow);
 }
 
-.btn-primary:active { transform: translateY(0) scale(0.98); }
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
 
 .btn-secondary {
   background: var(--bg-tertiary);
@@ -604,7 +668,8 @@ input, select, textarea { font-family: inherit; }
   margin-top: 4px;
 }
 
-.location-card, .nearby-count-card {
+.location-card,
+.nearby-count-card {
   width: 100%;
   max-width: 440px;
   display: flex;
@@ -619,7 +684,8 @@ input, select, textarea { font-family: inherit; }
   transition: all 0.3s var(--ease-out);
 }
 
-.location-card:hover, .nearby-count-card:hover {
+.location-card:hover,
+.nearby-count-card:hover {
   background: rgba(255, 255, 255, 0.05);
   transform: translateX(4px);
 }
@@ -659,7 +725,9 @@ input, select, textarea { font-family: inherit; }
   scrollbar-width: none;
 }
 
-.sos-type-selector::-webkit-scrollbar { display: none; }
+.sos-type-selector::-webkit-scrollbar {
+  display: none;
+}
 
 .sos-type-btn {
   display: flex;
@@ -678,7 +746,10 @@ input, select, textarea { font-family: inherit; }
   flex: 1;
 }
 
-.sos-type-btn .type-icon { font-size: 28px; transition: transform 0.3s var(--ease-spring); }
+.sos-type-btn .type-icon {
+  font-size: 28px;
+  transition: transform 0.3s var(--ease-spring);
+}
 
 .sos-type-btn:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -692,12 +763,29 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.sos-type-btn.active .type-icon { transform: scale(1.2); }
+.sos-type-btn.active .type-icon {
+  transform: scale(1.2);
+}
 
-.sos-type-btn[data-type="medical"].active { border-color: var(--danger); box-shadow: 0 8px 16px var(--danger-soft); }
-.sos-type-btn[data-type="fire"].active { border-color: var(--fire); box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2); }
-.sos-type-btn[data-type="harassment"].active { border-color: var(--harassment); box-shadow: 0 8px 16px rgba(168, 85, 247, 0.2); }
-.sos-type-btn[data-type="accident"].active { border-color: var(--accident); box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2); }
+.sos-type-btn[data-type="medical"].active {
+  border-color: var(--danger);
+  box-shadow: 0 8px 16px var(--danger-soft);
+}
+
+.sos-type-btn[data-type="fire"].active {
+  border-color: var(--fire);
+  box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2);
+}
+
+.sos-type-btn[data-type="harassment"].active {
+  border-color: var(--harassment);
+  box-shadow: 0 8px 16px rgba(168, 85, 247, 0.2);
+}
+
+.sos-type-btn[data-type="accident"].active {
+  border-color: var(--accident);
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
+}
 
 /* ─── The SOS Button ─────────────────────────────────── */
 .sos-container {
@@ -1157,9 +1245,60 @@ input, select, textarea { font-family: inherit; }
   border-width: 2px;
 }
 
-.marker-self {
-  background: var(--safe);
-  border-color: #fff;
+/* Premium Self Marker (Google style) */
+.marker-self-container {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-self-dot {
+  width: 12px;
+  height: 12px;
+  background: #3b82f6;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  z-index: 2;
+}
+
+.marker-self-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 50%;
+  z-index: 1;
+  animation: selfPulse 2s infinite;
+}
+
+@keyframes selfPulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.accuracy-circle-pulsing {
+  animation: circleOpacity 3s ease-in-out infinite alternate;
+}
+
+@keyframes circleOpacity {
+  from {
+    fill-opacity: 0.1;
+  }
+
+  to {
+    fill-opacity: 0.25;
+  }
 }
 
 /* Facility Markers */
@@ -1173,11 +1312,23 @@ input, select, textarea { font-family: inherit; }
   font-size: 13px !important;
   border: 1.5px solid;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
-.facility-hospital { color: #FF3B30; border-color: #FF3B30; }
-.facility-police { color: #007AFF; border-color: #007AFF; }
-.facility-fire { color: #FF9500; border-color: #FF9500; }
+
+.facility-hospital {
+  color: #FF3B30;
+  border-color: #FF3B30;
+}
+
+.facility-police {
+  color: #007AFF;
+  border-color: #007AFF;
+}
+
+.facility-fire {
+  color: #FF9500;
+  border-color: #FF9500;
+}
 
 .marker-pulse {
   animation: markerPulse 2s ease-out infinite;
@@ -1858,7 +2009,7 @@ input, select, textarea { font-family: inherit; }
   color: var(--text-secondary);
   padding: 10px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .instruction-item strong {
@@ -1938,6 +2089,7 @@ input, select, textarea { font-family: inherit; }
     transform: scale(1);
     opacity: 0.6;
   }
+
   100% {
     transform: scale(1.8);
     opacity: 0;
@@ -1945,9 +2097,17 @@ input, select, textarea { font-family: inherit; }
 }
 
 @keyframes voiceTriggered {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ─── Voice Activation Overlay ───────────────────────── */
@@ -2009,6 +2169,7 @@ input, select, textarea { font-family: inherit; }
     transform: scale(0.8);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(2);
     opacity: 0;
@@ -2059,8 +2220,13 @@ input, select, textarea { font-family: inherit; }
 }
 
 @keyframes countdownShrink {
-  from { width: 100%; }
-  to { width: 0%; }
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
 }
 
 .voice-cancel-btn {
@@ -2108,8 +2274,15 @@ input, select, textarea { font-family: inherit; }
 }
 
 @keyframes routeDestPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 .route-start-marker {

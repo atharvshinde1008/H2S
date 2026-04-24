@@ -32,10 +32,43 @@ const PulseLocation = (function () {
     );
   }
 
+  async function updateAddress(lat, lng) {
+    try {
+      // Free reverse geocoding from Nominatim (OpenStreetMap)
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+        headers: { 'Accept-Language': 'en' }
+      });
+      const data = await response.json();
+      const address = data.display_name || 'Address found';
+      const shortAddress = data.address.road || data.address.suburb || data.address.city || 'Address found';
+
+      currentLocation.address = address;
+      currentLocation.shortAddress = shortAddress;
+
+      console.log('📍 Address found:', shortAddress);
+
+      // Update UI if elements exist
+      const statusDetail = document.querySelector('.status-detail');
+      if (statusDetail) statusDetail.textContent = shortAddress;
+
+    } catch (err) {
+      console.warn('🧭 Reverse Geocoding failed:', err);
+    }
+  }
+
   function onPositionSuccess(position) {
+    const { latitude, longitude, accuracy } = position.coords;
+
+    // Smooth jumping: Ignore updates if accuracy is very poor (> 500m) and we already have a lock
+    if (currentLocation && accuracy > 500) return;
+
     currentLocation = {
-      lat: position.coords.latitude,
-      lng: position.coords.longitude,
+      lat: latitude,
+      lng: longitude,
+      accuracy: accuracy, // in meters
+      timestamp: Date.now(),
+      address: currentLocation ? currentLocation.address : 'Locating...',
+      shortAddress: currentLocation ? currentLocation.shortAddress : 'Locating...'
     };
 
     updateUI('Active');
@@ -50,6 +83,9 @@ const PulseLocation = (function () {
       PulseSocket.emit('location:update', { location: currentLocation });
       PulseSocket.emit('nearby:count', { location: currentLocation });
     }
+
+    // Fetch address in background
+    updateAddress(latitude, longitude);
   }
 
   function onPositionError(error) {
