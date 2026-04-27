@@ -519,6 +519,7 @@ interface EmergencyContact {
 }
 ```
 
+
 ---
 
 ## 🎨 Design System
@@ -644,6 +645,13 @@ The best way to test PulseNet is with **two browser windows** side by side:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Contributors 
+
+1.Atharv Shinde 
+2.Pratik Deshmukh
+3.Ankush Kashyap
+4.Gaurav Kad
 
 ### Code Style
 - **TypeScript:** Strict mode, explicit types
