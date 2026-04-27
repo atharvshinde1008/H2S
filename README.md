@@ -648,33 +648,33 @@ The best way to test PulseNet is with **two browser windows** side by side:
 
 ## Contributors 
 
-1.Atharv Shinde:
--Full-Stack Development & Integration Lead
--Led the end-to-end development of the platform by building both frontend and backend systems.
--Developed core application interface and user workflows
--Integrated backend services with real-time database (Firebase)
--Ensured seamless communication between modules (alerts, user data, reporting system)
--Managed deployment and overall system stability.
+1.**Atharv Shinde**:
+- Full-Stack Development & Integration Lead
+- Led the end-to-end development of the platform by building both frontend and backend systems.
+- Developed core application interface and user workflows
+- Integrated backend services with real-time database (Firebase)
+- Ensured seamless communication between modules (alerts, user data, reporting system)
+- Managed deployment and overall system stability.
 
-2.Ankush Kashyap-
--Backend & System Architecture Engineer
--Focused on building a robust and scalable system backbone.
--Designed system architecture for real-time crisis detection and response.
--Implemented APIs and data handling logic.
+2.**Ankush Kashyap**-
+- Backend & System Architecture Engineer
+- Focused on building a robust and scalable system backbone.
+- Designed system architecture for real-time crisis detection and response.
+- Implemented APIs and data handling logic.
 
-3.Gaurav Karad:
--UI/UX Designer & Frontend Specialist
--Crafted the user experience to ensure clarity and responsiveness during emergencies.
--Designed intuitive and minimal UI for quick interaction under stress.
--Developed responsive frontend components.
--Focused on accessibility and ease-of-use.
+3.**Gaurav Karad**:
+- UI/UX Designer & Frontend Specialist
+- Crafted the user experience to ensure clarity and responsiveness during emergencies.
+- Designed intuitive and minimal UI for quick interaction under stress.
+- Developed responsive frontend components.
+- Focused on accessibility and ease-of-use.
 
-4.Pratik Deshmukh:
--Product Strategist & Presentation Lead
--Defined the product vision and translated it into a compelling narrative.
+4.**Pratik Deshmukh**:
+- Product Strategist & Presentation Lead
+- Defined the product vision and translated it into a compelling narrative.
 -Identified problem statement and mapped solution approach
--Prioritized MVP features for hackathon timeline
--Prepared pitch, demo flow, and storytelling
+- Prioritized MVP features for hackathon timeline
+- Prepared pitch, demo flow, and storytelling
 
 
 ### Code Style
